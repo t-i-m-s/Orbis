@@ -375,7 +375,7 @@ CREATE TABLE public.essence (
     id integer NOT NULL,
     name character varying(50) NOT NULL,
     type character varying(20) NOT NULL,
-    child_id integer
+    parent_id integer
 );
 
 
@@ -651,6 +651,8 @@ COPY public.django_migrations (id, app, name, applied) FROM stdin;
 17	auth	0011_update_proxy_permissions	2021-02-24 22:12:42.891691+03
 18	sessions	0001_initial	2021-02-24 22:12:42.902433+03
 19	Orbis_app	0002_auto_20210224_1925	2021-02-24 22:26:07.985775+03
+20	Orbis_app	0003_auto_20210226_1956	2021-02-26 22:56:37.161858+03
+21	Orbis_app	0004_auto_20210226_2131	2021-02-27 00:32:01.241141+03
 \.
 
 
@@ -658,7 +660,7 @@ COPY public.django_migrations (id, app, name, applied) FROM stdin;
 -- Name: django_migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: orbis
 --
 
-SELECT pg_catalog.setval('public.django_migrations_id_seq', 19, true);
+SELECT pg_catalog.setval('public.django_migrations_id_seq', 21, true);
 
 
 --
@@ -673,13 +675,12 @@ COPY public.django_session (session_key, session_data, expire_date) FROM stdin;
 -- Data for Name: essence; Type: TABLE DATA; Schema: public; Owner: orbis
 --
 
-COPY public.essence (id, name, type, child_id) FROM stdin;
-1	Name1	Dir	\N
-2	Name2	Type1	\N
-3	Name3	Type2	\N
-4	Name4	Dir	3
-5	Name5	Type1	\N
-6	Name6	Type2	\N
+COPY public.essence (id, name, type, parent_id) FROM stdin;
+13	Name4	Type2	10
+11	Name2	Type1	10
+10	Name1	Dir	\N
+14	Name5	Type1	12
+12	Name3	Dir	\N
 \.
 
 
@@ -687,7 +688,7 @@ COPY public.essence (id, name, type, child_id) FROM stdin;
 -- Name: essence_id_seq; Type: SEQUENCE SET; Schema: public; Owner: orbis
 --
 
-SELECT pg_catalog.setval('public.essence_id_seq', 6, true);
+SELECT pg_catalog.setval('public.essence_id_seq', 14, true);
 
 
 --
@@ -827,14 +828,6 @@ ALTER TABLE ONLY public.django_session
 
 
 --
--- Name: essence_child_id_key; Type: CONSTRAINT; Schema: public; Owner: orbis
---
-
-ALTER TABLE ONLY public.essence
-    ADD CONSTRAINT essence_child_id_key UNIQUE (child_id);
-
-
---
 -- Name: essence_pkey; Type: CONSTRAINT; Schema: public; Owner: orbis
 --
 
@@ -934,6 +927,13 @@ CREATE INDEX django_session_session_key_c0390e0f_like ON public.django_session U
 
 
 --
+-- Name: essence_child_id_ca369912; Type: INDEX; Schema: public; Owner: orbis
+--
+
+CREATE INDEX essence_child_id_ca369912 ON public.essence USING btree (parent_id);
+
+
+--
 -- Name: auth_group_permissio_permission_id_84c5c92e_fk_auth_perm; Type: FK CONSTRAINT; Schema: public; Owner: orbis
 --
 
@@ -1006,11 +1006,11 @@ ALTER TABLE ONLY public.django_admin_log
 
 
 --
--- Name: essence_child_id_ca369912_fk; Type: FK CONSTRAINT; Schema: public; Owner: orbis
+-- Name: essence_parent_id_b9c174d5_fk_essence_id; Type: FK CONSTRAINT; Schema: public; Owner: orbis
 --
 
 ALTER TABLE ONLY public.essence
-    ADD CONSTRAINT essence_child_id_ca369912_fk FOREIGN KEY (child_id) REFERENCES public.essence(id) DEFERRABLE INITIALLY DEFERRED;
+    ADD CONSTRAINT essence_parent_id_b9c174d5_fk_essence_id FOREIGN KEY (parent_id) REFERENCES public.essence(id) DEFERRABLE INITIALLY DEFERRED;
 
 
 --

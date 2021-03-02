@@ -4,7 +4,7 @@ from django.db import models
 class Essence(models.Model):
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=20)
-    child = models.OneToOneField('self', on_delete=models.CASCADE, null=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
 
     class Meta:
         db_table = 'essence'
@@ -13,6 +13,6 @@ class Essence(models.Model):
         return self.name
 
     def get_fields(self):
-        if self.child:
-            return {"name": self.name, "type": self.type, "child": [self.child.get_fields()]}
+        if self.essence_set.all():
+            return {"name": self.name, "type": self.type, "child": list(map(lambda x: x.get_fields(), self.essence_set.all()))}
         return {"name": self.name, "type": self.type, "child": None}
